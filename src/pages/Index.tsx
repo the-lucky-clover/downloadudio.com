@@ -12,21 +12,9 @@ interface AudioResult {
 const Index = () => {
   const [results, setResults] = useState<AudioResult[]>([]);
 
-  const handleResults = (audioResults: AudioResult[]) => {
-    console.log("Index received results:", audioResults);
-    console.log("Results length:", audioResults.length);
-    setResults(audioResults);
-  };
-
-  console.log("Current results state:", results);
-  console.log("Should render panel:", results.length > 0);
-
   return (
     <div className="min-h-screen">
-      <HeroSection onResults={handleResults} />
-      {results.length > 0 && (
-        <ResultsPanel results={results} onClose={() => setResults([])} />
-      )}
+      <HeroSection onResults={setResults} />
       <FeaturesGrid />
     </div>
   );
