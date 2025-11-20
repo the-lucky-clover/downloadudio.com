@@ -160,13 +160,23 @@ serve(async (req) => {
       }
     }
 
-    console.log(`Found ${audioUrls.length} audio sources`);
+    // Filter out invalid URLs (like just "mp3" or malformed URLs)
+    const validAudioUrls = audioUrls.filter(item => {
+      try {
+        const urlObj = new URL(item.url);
+        return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    });
+
+    console.log(`Found ${validAudioUrls.length} valid audio sources`);
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        audioUrls,
-        count: audioUrls.length 
+        audioUrls: validAudioUrls,
+        count: validAudioUrls.length 
       }),
       { 
         status: 200, 

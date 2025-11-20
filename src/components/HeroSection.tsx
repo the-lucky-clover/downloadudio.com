@@ -6,7 +6,17 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import heroBackground from "@/assets/hero-background.jpg";
 
-export const HeroSection = () => {
+interface AudioResult {
+  url: string;
+  filename: string;
+  type?: string;
+}
+
+interface HeroSectionProps {
+  onResults: (results: AudioResult[]) => void;
+}
+
+export const HeroSection = ({ onResults }: HeroSectionProps) => {
   const [url, setUrl] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const { toast } = useToast();
@@ -30,12 +40,11 @@ export const HeroSection = () => {
       if (error) throw error;
 
       if (data?.audioUrls?.length > 0) {
+        onResults(data.audioUrls);
         toast({
           title: "Audio Found!",
           description: `Discovered ${data.audioUrls.length} audio source(s)`,
         });
-        // You can emit this data to a parent component or state manager
-        console.log("Audio URLs:", data.audioUrls);
       } else {
         toast({
           title: "No Audio Found",
