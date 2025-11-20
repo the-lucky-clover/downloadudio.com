@@ -109,11 +109,11 @@ export const PaywallGuard = ({ children }: PaywallGuardProps) => {
               <CardHeader className="space-y-2 pb-4 pt-6 sm:pt-4">
                 <Badge className="w-fit" variant="secondary">Yearly</Badge>
                 <CardTitle className="text-2xl sm:text-3xl">
-                  $7.77
+                  $77.77
                   <span className="text-sm sm:text-base font-normal text-muted-foreground">/year</span>
                 </CardTitle>
                 <CardDescription className="text-xs sm:text-sm">
-                  <span className="text-green-600 font-semibold">Save $85.47 vs monthly!</span>
+                  <span className="text-green-600 font-semibold">Save $15.47 vs monthly!</span>
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -148,7 +148,7 @@ export const PaywallGuard = ({ children }: PaywallGuardProps) => {
               <Lock className="h-3 w-3 sm:h-4 sm:w-4" />
               <span>Secure payment powered by Stripe</span>
             </div>
-            <p>Cancel anytime • No hidden fees • Instant access</p>
+            <p>7-day free trial • Cancel anytime • No hidden fees</p>
           </div>
         </div>
       </div>
