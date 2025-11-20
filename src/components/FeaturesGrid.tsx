@@ -40,25 +40,25 @@ export const FeaturesGrid = () => {
           </p>
         </div>
 
-        {/* Bento Grid */}
+        {/* Enhanced Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <div
                 key={index}
-                className="glass-card p-8 hover-lift group"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className="glass-card p-8 hover-lift group cursor-pointer animate-fade-in"
+                style={{ animationDelay: `${index * 0.15}s` }}
               >
                 <div
-                  className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
+                  className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-125 group-hover:rotate-6 transition-all duration-500 shadow-lg group-hover:shadow-[0_0_30px_rgba(0,255,255,0.5)]`}
                 >
-                  <Icon className="w-8 h-8 text-primary" />
+                  <Icon className="w-8 h-8 text-primary group-hover:text-primary-glow transition-colors duration-300" />
                 </div>
-                <h3 className="text-2xl font-display font-bold mb-3 text-foreground">
+                <h3 className="text-2xl font-display font-bold mb-3 text-foreground group-hover:text-primary transition-colors duration-300">
                   {feature.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors duration-300">
                   {feature.description}
                 </p>
               </div>
