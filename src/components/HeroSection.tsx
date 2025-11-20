@@ -40,6 +40,8 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
       if (error) throw error;
 
       if (data?.audioUrls?.length > 0) {
+        console.log("Audio URLs found:", data.audioUrls);
+        console.log("Calling onResults with:", data.audioUrls);
         onResults(data.audioUrls);
         toast({
           title: "Audio Found!",
