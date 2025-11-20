@@ -160,23 +160,34 @@ serve(async (req) => {
       }
     }
 
-    // Filter out invalid URLs (like just "mp3" or malformed URLs)
-    const validAudioUrls = audioUrls.filter(item => {
-      try {
-        const urlObj = new URL(item.url);
-        return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
-      } catch {
-        return false;
-      }
-    });
+    // Remove duplicates and filter out invalid URLs
+    const uniqueUrls = Array.from(new Set(audioUrls.map(a => a.url)))
+      .map(url => audioUrls.find(a => a.url === url)!)
+      .filter(item => {
+        try {
+          const urlObj = new URL(item.url);
+          const isValid = (urlObj.protocol === 'http:' || urlObj.protocol === 'https:') 
+            && urlObj.pathname.length > 1; // Must have a path beyond just "/"
+          if (!isValid) {
+            console.log(`Filtered out invalid URL: ${item.url}`);
+          }
+          return isValid;
+        } catch (e) {
+          console.log(`Filtered out malformed URL: ${item.url}`);
+          return false;
+        }
+      });
 
-    console.log(`Found ${validAudioUrls.length} valid audio sources`);
+    console.log(`Found ${uniqueUrls.length} valid audio sources`);
+    if (uniqueUrls.length > 0) {
+      console.log('Audio URLs found:', uniqueUrls.map(u => u.url));
+    }
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        audioUrls: validAudioUrls,
-        count: validAudioUrls.length 
+        audioUrls: uniqueUrls,
+        count: uniqueUrls.length 
       }),
       { 
         status: 200, 
