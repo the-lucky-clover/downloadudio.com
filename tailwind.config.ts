@@ -166,6 +166,11 @@ export default {
         "pulse-glow": "pulse-glow 3s ease-in-out infinite",
         "spin-slow": "spin 8s linear infinite",
       },
+      animationDelay: {
+        '200': '200ms',
+        '1000': '1000ms',
+      },
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

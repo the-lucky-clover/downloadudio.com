@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { X, Check, Zap, Sparkles, Lock } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { useHaptic } from "@/hooks/useHaptic";
 
 interface PricingModalProps {
   isOpen: boolean;
@@ -10,9 +10,12 @@ interface PricingModalProps {
 }
 
 export const PricingModal = ({ isOpen, onClose, onSubscribe }: PricingModalProps) => {
+  const vibrate = useHaptic();
+
   if (!isOpen) return null;
 
   const handleSubscribe = (plan: "monthly" | "yearly") => {
+    vibrate("success");
     // In production, integrate with Stripe
     console.log(`Subscribing to ${plan} plan`);
     localStorage.setItem("subscriptionStatus", "active");
@@ -20,12 +23,17 @@ export const PricingModal = ({ isOpen, onClose, onSubscribe }: PricingModalProps
     onSubscribe(plan);
   };
 
+  const handleClose = () => {
+    vibrate("light");
+    onClose();
+  };
+
   return (
     <>
       {/* Backdrop with blur and darken animation */}
       <div 
         className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md animate-in fade-in duration-300"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* Modal container - mobile-first */}
@@ -51,8 +59,9 @@ export const PricingModal = ({ isOpen, onClose, onSubscribe }: PricingModalProps
             <div className="relative z-10 p-6 sm:p-8 md:p-12">
               {/* Close button - mobile optimized */}
               <button
-                onClick={onClose}
-                className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 rounded-full bg-background/50 hover:bg-background/80 border border-border/50 hover:border-primary/50 transition-all hover:scale-110 hover:rotate-90 duration-300"
+                onClick={handleClose}
+                onMouseDown={() => vibrate("light")}
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 rounded-full bg-background/50 hover:bg-background/80 border border-border/50 hover:border-primary/50 transition-all hover:scale-110 hover:rotate-90 duration-300 active:scale-90"
               >
                 <X className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
@@ -110,7 +119,8 @@ export const PricingModal = ({ isOpen, onClose, onSubscribe }: PricingModalProps
 
                     <Button
                       onClick={() => handleSubscribe("monthly")}
-                      className="w-full h-11 sm:h-12 text-sm sm:text-base bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-primary/50 hover:shadow-xl hover:shadow-primary/60 transition-all hover:scale-[1.02]"
+                      onMouseDown={() => vibrate("medium")}
+                      className="w-full h-11 sm:h-12 text-sm sm:text-base bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-primary/50 hover:shadow-xl hover:shadow-primary/60 transition-all hover:scale-[1.02] active:scale-95"
                     >
                       Start Free Trial
                     </Button>
@@ -162,7 +172,8 @@ export const PricingModal = ({ isOpen, onClose, onSubscribe }: PricingModalProps
 
                     <Button
                       onClick={() => handleSubscribe("yearly")}
-                      className="w-full h-11 sm:h-12 text-sm sm:text-base bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:via-purple-500 hover:to-indigo-500 shadow-xl shadow-purple-500/60 hover:shadow-2xl hover:shadow-purple-500/80 transition-all hover:scale-[1.02] font-bold"
+                      onMouseDown={() => vibrate("medium")}
+                      className="w-full h-11 sm:h-12 text-sm sm:text-base bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:via-purple-500 hover:to-indigo-500 shadow-xl shadow-purple-500/60 hover:shadow-2xl hover:shadow-purple-500/80 transition-all hover:scale-[1.02] font-bold active:scale-95"
                     >
                       Start Free Trial
                     </Button>
