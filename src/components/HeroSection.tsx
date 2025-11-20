@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ScanningModal } from "@/components/ScanningModal";
 import { Scene3D } from "@/components/Scene3D";
+import { useHaptic } from "@/hooks/useHaptic";
 
 interface AudioResult {
   url: string;
@@ -23,9 +24,11 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
   const [showModal, setShowModal] = useState(false);
   const [modalResults, setModalResults] = useState<AudioResult[]>([]);
   const { toast } = useToast();
+  const vibrate = useHaptic();
 
   const handleScan = async () => {
     if (!url.trim()) {
+      vibrate("error");
       toast({
         title: "Enter a URL",
         description: "Please paste a valid URL to scan for audio",
@@ -34,6 +37,7 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
       return;
     }
 
+    vibrate("medium");
     setIsScanning(true);
     setShowModal(true);
     setModalResults([]);
@@ -46,6 +50,7 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
       if (error) throw error;
 
       if (data?.audioUrls?.length > 0) {
+        vibrate("success");
         setModalResults(data.audioUrls);
         onResults(data.audioUrls);
         toast({
@@ -53,6 +58,7 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
           description: `Discovered ${data.audioUrls.length} audio source(s)`,
         });
       } else {
+        vibrate("light");
         setModalResults([]);
         toast({
           title: "No Audio Found",
@@ -60,6 +66,7 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
         });
       }
     } catch (error) {
+      vibrate("error");
       console.error("Scan error:", error);
       setShowModal(false);
       toast({
@@ -73,6 +80,7 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
   };
 
   const handleDownload = (fileUrl: string, filename: string) => {
+    vibrate("success");
     const link = document.createElement("a");
     link.href = fileUrl;
     link.download = filename;
@@ -133,7 +141,8 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
                 onClick={handleScan}
                 disabled={isScanning || !url.trim()}
                 size="lg"
-                className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+                className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-primary/50 active:scale-95"
+                onMouseDown={() => vibrate("light")}
               >
                 {isScanning ? (
                   <>
@@ -156,20 +165,29 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
               <p className="font-medium">Try with:</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 <button
-                  onClick={() => setUrl("https://udio.com/songs/...")}
-                  className="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors text-xs sm:text-sm"
+                  onClick={() => {
+                    vibrate("light");
+                    setUrl("https://udio.com/songs/...");
+                  }}
+                  className="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-all hover:scale-105 active:scale-95 text-xs sm:text-sm"
                 >
                   Udio
                 </button>
                 <button
-                  onClick={() => setUrl("https://youtube.com/watch?v=...")}
-                  className="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors text-xs sm:text-sm"
+                  onClick={() => {
+                    vibrate("light");
+                    setUrl("https://youtube.com/watch?v=...");
+                  }}
+                  className="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-all hover:scale-105 active:scale-95 text-xs sm:text-sm"
                 >
                   YouTube
                 </button>
                 <button
-                  onClick={() => setUrl("https://soundcloud.com/...")}
-                  className="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors text-xs sm:text-sm"
+                  onClick={() => {
+                    vibrate("light");
+                    setUrl("https://soundcloud.com/...");
+                  }}
+                  className="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-all hover:scale-105 active:scale-95 text-xs sm:text-sm"
                 >
                   SoundCloud
                 </button>
@@ -177,15 +195,15 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
             </div>
           </div>
 
-          {/* Features badges - Mobile optimized */}
+          {/* Features badges - Mobile optimized with enhanced hover */}
           <div className="flex flex-wrap gap-2 sm:gap-3 justify-center text-xs sm:text-sm px-4">
-            <div className="px-3 sm:px-4 py-2 rounded-full bg-background/50 backdrop-blur border border-primary/20">
+            <div className="px-3 sm:px-4 py-2 rounded-full bg-background/50 backdrop-blur border border-primary/20 hover:border-primary/60 hover:scale-110 hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95 cursor-default">
               ⚡ Lightning Fast
             </div>
-            <div className="px-3 sm:px-4 py-2 rounded-full bg-background/50 backdrop-blur border border-primary/20">
+            <div className="px-3 sm:px-4 py-2 rounded-full bg-background/50 backdrop-blur border border-primary/20 hover:border-primary/60 hover:scale-110 hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95 cursor-default">
               🔒 Secure
             </div>
-            <div className="px-3 sm:px-4 py-2 rounded-full bg-background/50 backdrop-blur border border-primary/20">
+            <div className="px-3 sm:px-4 py-2 rounded-full bg-background/50 backdrop-blur border border-primary/20 hover:border-primary/60 hover:scale-110 hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95 cursor-default">
               🌍 Universal
             </div>
           </div>
