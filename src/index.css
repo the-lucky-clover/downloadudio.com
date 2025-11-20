@@ -112,6 +112,7 @@ All colors MUST be HSL.
     background: linear-gradient(180deg, hsl(240 40% 4%), hsl(240 60% 8%), hsl(280 40% 10%));
     min-height: 100vh;
     overflow-x: hidden;
+    perspective: 1000px;
   }
 }
 
@@ -296,5 +297,15 @@ All colors MUST be HSL.
   
   .hover-lift:active {
     transform: translateY(-4px) scale(0.98);
+  }
+
+  /* 3D Perspective utilities */
+  .perspective-1000 {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+  }
+
+  .transform-3d {
+    transform-style: preserve-3d;
   }
 }

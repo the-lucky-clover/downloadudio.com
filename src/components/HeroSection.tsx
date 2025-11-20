@@ -5,6 +5,7 @@ import { Sparkles, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ScanningModal } from "@/components/ScanningModal";
+import { Scene3D } from "@/components/Scene3D";
 
 interface AudioResult {
   url: string;
@@ -88,22 +89,26 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
     <>
       {/* Mobile-first hero section */}
       <section className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center px-4 py-8 sm:py-12 overflow-hidden">
-        {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-pink-500/10" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-200/20 via-background to-background" />
-        
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        {/* 3D Interactive Background */}
+        <div className="absolute inset-0 opacity-60">
+          <Scene3D />
         </div>
+
+        {/* Gradient overlay for depth */}
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/20 via-purple-900/10 to-pink-900/20 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_hsl(var(--background))_100%)]" />
 
         {/* Content */}
         <div className="relative z-10 w-full max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
-          {/* Title - Mobile optimized */}
+          {/* Title - Mobile optimized with 3D effect */}
           <div className="space-y-3 sm:space-y-4">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight">
-              <span className="block bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight perspective-1000">
+              <span className="block bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(139,92,246,0.8)] animate-float"
+                    style={{ 
+                      textShadow: '0 10px 30px rgba(139, 92, 246, 0.3), 0 0 50px rgba(168, 85, 247, 0.2)',
+                      transform: 'translateZ(50px)',
+                      transformStyle: 'preserve-3d'
+                    }}>
                 Downloadudio
               </span>
             </h1>
