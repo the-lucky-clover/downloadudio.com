@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ScanningModal } from "@/components/ScanningModal";
 import { Scene3D } from "@/components/Scene3D";
 import { useHaptic } from "@/hooks/useHaptic";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 
 interface AudioResult {
   url: string;
@@ -25,10 +26,12 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
   const [modalResults, setModalResults] = useState<AudioResult[]>([]);
   const { toast } = useToast();
   const vibrate = useHaptic();
+  const { playSound, playSuccessSound } = useSoundEffects();
 
   const handleScan = async () => {
     if (!url.trim()) {
       vibrate("error");
+      playSound("error");
       toast({
         title: "Enter a URL",
         description: "Please paste a valid URL to scan for audio",
@@ -38,6 +41,7 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
     }
 
     vibrate("medium");
+    playSound("scan");
     setIsScanning(true);
     setShowModal(true);
     setModalResults([]);
@@ -51,6 +55,7 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
 
       if (data?.audioUrls?.length > 0) {
         vibrate("success");
+        playSuccessSound();
         setModalResults(data.audioUrls);
         onResults(data.audioUrls);
         toast({
@@ -59,6 +64,7 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
         });
       } else {
         vibrate("light");
+        playSound("click");
         setModalResults([]);
         toast({
           title: "No Audio Found",
@@ -67,6 +73,7 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
       }
     } catch (error) {
       vibrate("error");
+      playSound("error");
       console.error("Scan error:", error);
       setShowModal(false);
       toast({
@@ -81,6 +88,7 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
 
   const handleDownload = (fileUrl: string, filename: string) => {
     vibrate("success");
+    playSound("download");
     const link = document.createElement("a");
     link.href = fileUrl;
     link.download = filename;
@@ -167,27 +175,33 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
                 <button
                   onClick={() => {
                     vibrate("light");
+                    playSound("click");
                     setUrl("https://udio.com/songs/...");
                   }}
                   className="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-all hover:scale-105 active:scale-95 text-xs sm:text-sm"
+                  onMouseEnter={() => playSound("hover")}
                 >
                   Udio
                 </button>
                 <button
                   onClick={() => {
                     vibrate("light");
+                    playSound("click");
                     setUrl("https://youtube.com/watch?v=...");
                   }}
                   className="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-all hover:scale-105 active:scale-95 text-xs sm:text-sm"
+                  onMouseEnter={() => playSound("hover")}
                 >
                   YouTube
                 </button>
                 <button
                   onClick={() => {
                     vibrate("light");
+                    playSound("click");
                     setUrl("https://soundcloud.com/...");
                   }}
                   className="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-all hover:scale-105 active:scale-95 text-xs sm:text-sm"
+                  onMouseEnter={() => playSound("hover")}
                 >
                   SoundCloud
                 </button>
