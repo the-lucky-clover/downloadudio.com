@@ -45,10 +45,13 @@ export const ScanningModal = ({
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Enhanced Backdrop */}
       <div 
-        className="fixed inset-0 bg-background/80 backdrop-blur-xl z-50 animate-fade-in"
+        className="fixed inset-0 bg-background/90 backdrop-blur-2xl z-50 animate-fade-in"
         onClick={onClose}
+        style={{
+          background: 'radial-gradient(circle at center, hsl(240 40% 4% / 0.95), hsl(240 40% 4%))',
+        }}
       />
 
       {/* Modal */}
@@ -57,10 +60,10 @@ export const ScanningModal = ({
           className="glass-modal-3d w-full max-w-2xl pointer-events-auto animate-scale-in"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close button */}
+          {/* Enhanced Close button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors z-10"
+            className="absolute top-4 right-4 text-muted-foreground hover:text-primary transition-all duration-300 z-10 hover:scale-110 hover:rotate-90 active:scale-90"
           >
             <X className="w-5 h-5" />
           </button>
@@ -71,12 +74,12 @@ export const ScanningModal = ({
               {isScanning ? (
                 <div className="relative">
                   <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                  <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+                  <div className="absolute inset-0 bg-primary/30 rounded-full blur-xl animate-glow-pulse" />
                 </div>
               ) : results.length > 0 ? (
-                <div className="relative">
-                  <CheckCircle2 className="w-12 h-12 text-primary" />
-                  <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl" />
+                <div className="relative animate-scale-in">
+                  <CheckCircle2 className="w-12 h-12 text-primary animate-pulse-scale" />
+                  <div className="absolute inset-0 bg-primary/30 rounded-full blur-2xl animate-glow-pulse" />
                 </div>
               ) : null}
               
