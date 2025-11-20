@@ -1,0 +1,4 @@
+project_id = "vnpaavadjpjtkltvwbxl"
+
+[functions.scan-audio]
+verify_jwt = false
