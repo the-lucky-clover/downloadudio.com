@@ -5,7 +5,6 @@ import { Sparkles, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ScanningModal } from "@/components/ScanningModal";
-import heroBackground from "@/assets/hero-background.jpg";
 
 interface AudioResult {
   url: string;
@@ -86,114 +85,116 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Animated background */}
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage: `url(${heroBackground})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
-      
-      {/* Enhanced floating particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(30)].map((_, i) => {
-          const colors = ['bg-primary/40', 'bg-secondary/40', 'bg-accent/40'];
-          const sizes = ['w-1 h-1', 'w-2 h-2', 'w-3 h-3'];
-          return (
-            <div
-              key={i}
-              className={`particle absolute ${colors[i % colors.length]} ${sizes[i % sizes.length]} rounded-full blur-sm`}
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 6}s`,
-                animationDuration: `${4 + Math.random() * 4}s`,
-              }}
-            />
-          );
-        })}
-      </div>
-
-      <div className="relative z-10 container mx-auto px-4 text-center">
-        {/* Brand */}
-        <div className="mb-12 animate-fade-in">
-          <h1 className="text-7xl md:text-9xl font-display font-black tracking-tight mb-4">
-            <span className="gradient-text neon-glow">Downloadudio</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
-            AI-Powered Audio Extraction from Any Web Page
-          </p>
+    <>
+      {/* Mobile-first hero section */}
+      <section className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center px-4 py-8 sm:py-12 overflow-hidden">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-pink-500/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-200/20 via-background to-background" />
+        
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
         </div>
 
-        {/* Enhanced URL Input */}
-        <div className="max-w-3xl mx-auto mb-16 animate-scale-in">
-          <div className="glass-card p-3 hover-lift group relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
-            <div className="flex gap-3 relative z-10">
+        {/* Content */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
+          {/* Title - Mobile optimized */}
+          <div className="space-y-3 sm:space-y-4">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight">
+              <span className="block bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Downloadudio
+              </span>
+            </h1>
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto px-4">
+              AI-Powered Audio Extraction from Any Web Page
+            </p>
+          </div>
+
+          {/* Input section - Mobile optimized */}
+          <div className="w-full max-w-2xl mx-auto space-y-4 px-2">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 w-full">
               <Input
                 type="url"
-                placeholder="Paste any URL to scan for audio..."
+                placeholder="Paste any URL to extract audio..."
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleScan()}
+                className="flex-1 h-12 sm:h-14 text-base sm:text-lg px-4 sm:px-6 bg-background/50 backdrop-blur border-2 focus:border-primary transition-all"
                 disabled={isScanning}
-                className="flex-1 bg-background/50 border-none text-lg h-14 focus-visible:ring-primary focus:shadow-[0_0_20px_rgba(0,255,255,0.3)] transition-all duration-300"
               />
               <Button
                 onClick={handleScan}
-                disabled={isScanning}
+                disabled={isScanning || !url.trim()}
                 size="lg"
-                className="bg-gradient-to-r from-primary via-secondary to-accent bg-[length:200%_100%] hover:bg-[position:100%_0] transition-all duration-500 px-8 h-14 shadow-[0_0_30px_rgba(0,255,255,0.4)] hover:shadow-[0_0_50px_rgba(0,255,255,0.6)] hover:scale-105 active:scale-95"
+                className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
               >
                 {isScanning ? (
                   <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Scanning
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    <span className="hidden sm:inline">Scanning...</span>
+                    <span className="sm:hidden">Scan</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-5 h-5 mr-2 animate-pulse-scale" />
-                    Extract Audio
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    <span className="hidden sm:inline">Extract Audio</span>
+                    <span className="sm:hidden">Extract</span>
                   </>
                 )}
               </Button>
             </div>
+
+            {/* Quick examples - Mobile friendly */}
+            <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
+              <p className="font-medium">Try with:</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <button
+                  onClick={() => setUrl("https://udio.com/songs/...")}
+                  className="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors text-xs sm:text-sm"
+                >
+                  Udio
+                </button>
+                <button
+                  onClick={() => setUrl("https://youtube.com/watch?v=...")}
+                  className="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors text-xs sm:text-sm"
+                >
+                  YouTube
+                </button>
+                <button
+                  onClick={() => setUrl("https://soundcloud.com/...")}
+                  className="px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors text-xs sm:text-sm"
+                >
+                  SoundCloud
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Features badges - Mobile optimized */}
+          <div className="flex flex-wrap gap-2 sm:gap-3 justify-center text-xs sm:text-sm px-4">
+            <div className="px-3 sm:px-4 py-2 rounded-full bg-background/50 backdrop-blur border border-primary/20">
+              ⚡ Lightning Fast
+            </div>
+            <div className="px-3 sm:px-4 py-2 rounded-full bg-background/50 backdrop-blur border border-primary/20">
+              🔒 Secure
+            </div>
+            <div className="px-3 sm:px-4 py-2 rounded-full bg-background/50 backdrop-blur border border-primary/20">
+              🌍 Universal
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Enhanced feature highlights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {[
-            { icon: "🤖", title: "AI-Powered", desc: "Smart DOM scanning", delay: "0s" },
-            { icon: "⚡", title: "Lightning Fast", desc: "Instant extraction", delay: "0.1s" },
-            { icon: "🔒", title: "Secure", desc: "Privacy-first approach", delay: "0.2s" },
-          ].map((feature, i) => (
-            <div
-              key={i}
-              className="glass-card p-6 hover-lift animate-scale-in group cursor-pointer"
-              style={{ animationDelay: feature.delay }}
-            >
-              <div className="text-4xl mb-3 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500">{feature.icon}</div>
-              <h3 className="font-display font-bold text-xl mb-2 text-foreground group-hover:text-primary transition-colors duration-300">
-                {feature.title}
-              </h3>
-              <p className="text-muted-foreground text-sm group-hover:text-foreground/80 transition-colors duration-300">{feature.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
+      {/* Scanning Modal */}
       <ScanningModal
         isOpen={showModal}
+        onClose={handleCloseModal}
         isScanning={isScanning}
         results={modalResults}
-        onClose={handleCloseModal}
         onDownload={handleDownload}
       />
-    </section>
+    </>
   );
 };
