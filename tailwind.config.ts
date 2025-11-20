@@ -148,6 +148,10 @@ export default {
             boxShadow: "0 0 40px rgba(0, 255, 255, 0.8), 0 0 60px rgba(180, 100%, 60%, 0.4)",
           },
         },
+        "pulse-glow": {
+          "0%, 100%": { opacity: "0.3" },
+          "50%": { opacity: "0.6" }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -159,6 +163,8 @@ export default {
         "pulse-scale": "pulse-scale 2s ease-in-out infinite",
         "shimmer": "shimmer 3s linear infinite",
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 3s ease-in-out infinite",
+        "spin-slow": "spin 8s linear infinite",
       },
     },
   },
