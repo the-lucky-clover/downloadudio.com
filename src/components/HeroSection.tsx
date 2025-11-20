@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Sparkles, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { ScanningModal } from "@/components/ScanningModal";
 import heroBackground from "@/assets/hero-background.jpg";
 
 interface AudioResult {
@@ -19,6 +20,8 @@ interface HeroSectionProps {
 export const HeroSection = ({ onResults }: HeroSectionProps) => {
   const [url, setUrl] = useState("");
   const [isScanning, setIsScanning] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalResults, setModalResults] = useState<AudioResult[]>([]);
   const { toast } = useToast();
 
   const handleScan = async () => {
@@ -32,6 +35,9 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
     }
 
     setIsScanning(true);
+    setShowModal(true);
+    setModalResults([]);
+
     try {
       const { data, error } = await supabase.functions.invoke("scan-audio", {
         body: { url },
@@ -40,14 +46,14 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
       if (error) throw error;
 
       if (data?.audioUrls?.length > 0) {
-        console.log("Audio URLs found:", data.audioUrls);
-        console.log("Calling onResults with:", data.audioUrls);
+        setModalResults(data.audioUrls);
         onResults(data.audioUrls);
         toast({
           title: "Audio Found!",
           description: `Discovered ${data.audioUrls.length} audio source(s)`,
         });
       } else {
+        setModalResults([]);
         toast({
           title: "No Audio Found",
           description: "No audio sources were detected on this page",
@@ -55,6 +61,7 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
       }
     } catch (error) {
       console.error("Scan error:", error);
+      setShowModal(false);
       toast({
         title: "Scan Failed",
         description: "Unable to scan the URL. Please try again.",
@@ -63,6 +70,19 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
     } finally {
       setIsScanning(false);
     }
+  };
+
+  const handleDownload = (fileUrl: string, filename: string) => {
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = filename;
+    link.target = "_blank";
+    link.click();
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setModalResults([]);
   };
 
   return (
@@ -114,20 +134,19 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleScan()}
-                className="flex-1 bg-background/50 border-border/50 text-lg h-14 rounded-xl focus-visible:ring-primary"
                 disabled={isScanning}
+                className="flex-1 bg-background/50 border-none text-lg h-14 focus-visible:ring-primary"
               />
               <Button
                 onClick={handleScan}
                 disabled={isScanning}
                 size="lg"
-                className="h-14 px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl shadow-lg"
-                style={{ boxShadow: "var(--glow-cyan)" }}
+                className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity px-8 h-14"
               >
                 {isScanning ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Scanning...
+                    Scanning
                   </>
                 ) : (
                   <>
@@ -140,22 +159,35 @@ export const HeroSection = ({ onResults }: HeroSectionProps) => {
           </div>
         </div>
 
-        {/* Trust indicators */}
-        <div className="flex flex-wrap gap-8 justify-center items-center text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            <span>AI-Powered Scanning</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-secondary rounded-full animate-pulse" />
-            <span>Instant Extraction</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-            <span>No Sign-up Required</span>
-          </div>
+        {/* Feature highlights */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          {[
+            { icon: "🤖", title: "AI-Powered", desc: "Smart DOM scanning" },
+            { icon: "⚡", title: "Lightning Fast", desc: "Instant extraction" },
+            { icon: "🔒", title: "Secure", desc: "Privacy-first approach" },
+          ].map((feature, i) => (
+            <div
+              key={i}
+              className="glass-card p-6 hover-lift animate-scale-in"
+              style={{ animationDelay: `${i * 0.1}s` }}
+            >
+              <div className="text-4xl mb-3">{feature.icon}</div>
+              <h3 className="font-display font-bold text-xl mb-2 text-foreground">
+                {feature.title}
+              </h3>
+              <p className="text-muted-foreground text-sm">{feature.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
+
+      <ScanningModal
+        isOpen={showModal}
+        isScanning={isScanning}
+        results={modalResults}
+        onClose={handleCloseModal}
+        onDownload={handleDownload}
+      />
     </section>
   );
 };

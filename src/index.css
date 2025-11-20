@@ -114,6 +114,86 @@ All colors MUST be HSL.
     @apply backdrop-blur-xl bg-card/40 border border-border/50 rounded-2xl;
     box-shadow: 0 8px 32px 0 rgba(0, 255, 255, 0.15);
   }
+
+  .glass-modal-3d {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card) / 0.95),
+      hsl(var(--card) / 0.85)
+    );
+    backdrop-filter: blur(40px);
+    border: 1px solid hsl(var(--primary) / 0.2);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    position: relative;
+    box-shadow: 
+      0 20px 60px 0 rgba(0, 0, 0, 0.5),
+      0 0 0 1px hsl(var(--primary) / 0.1),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+      0 0 40px hsl(var(--primary) / 0.2);
+    transform-style: preserve-3d;
+  }
+
+  .glass-modal-3d::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      45deg,
+      hsl(var(--primary) / 0.05),
+      transparent,
+      hsl(var(--secondary) / 0.05)
+    );
+    border-radius: 1.5rem;
+    pointer-events: none;
+  }
+
+  .result-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--muted) / 0.5),
+      hsl(var(--muted) / 0.3)
+    );
+    border: 1px solid hsl(var(--border) / 0.3);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  .result-card:hover {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--muted) / 0.7),
+      hsl(var(--muted) / 0.5)
+    );
+    border-color: hsl(var(--primary) / 0.5);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 20px hsl(var(--primary) / 0.2);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--muted) / 0.3);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.5);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.7);
+  }
   
   /* Neon glow effect */
   .neon-glow {
