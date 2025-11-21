@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Download, Loader2, CheckCircle2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { PricingModal } from "./PricingModal";
 
 interface AudioResult {
   url: string;
@@ -26,14 +25,6 @@ export const ScanningModal = ({
   onDownload,
 }: ScanningModalProps) => {
   const [progress, setProgress] = useState(0);
-  const [showPricing, setShowPricing] = useState(false);
-  const [pendingDownload, setPendingDownload] = useState<{ url: string; filename: string } | null>(null);
-  const [isSubscribed, setIsSubscribed] = useState(false);
-
-  useEffect(() => {
-    const subscriptionStatus = localStorage.getItem("subscriptionStatus");
-    setIsSubscribed(subscriptionStatus === "active");
-  }, []);
 
   useEffect(() => {
     if (isScanning) {
@@ -49,26 +40,6 @@ export const ScanningModal = ({
       setProgress(100);
     }
   }, [isScanning, results]);
-
-  const handleDownloadClick = (url: string, filename: string) => {
-    if (isSubscribed) {
-      onDownload(url, filename);
-    } else {
-      setPendingDownload({ url, filename });
-      setShowPricing(true);
-    }
-  };
-
-  const handleSubscribe = (plan: "monthly" | "yearly") => {
-    setIsSubscribed(true);
-    setShowPricing(false);
-    
-    // Complete pending download
-    if (pendingDownload) {
-      onDownload(pendingDownload.url, pendingDownload.filename);
-      setPendingDownload(null);
-    }
-  };
 
   if (!isOpen) return null;
 
@@ -175,8 +146,8 @@ export const ScanningModal = ({
                     </Button>
                     <Button
                       size="sm"
-                      onClick={() => handleDownloadClick(result.url, result.filename)}
-                      className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg shadow-primary/30 hover:shadow-xl transition-all hover:scale-105"
+                      onClick={() => onDownload(result.url, result.filename)}
+                      className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       Download
@@ -200,15 +171,6 @@ export const ScanningModal = ({
           )}
         </div>
       </div>
-
-      <PricingModal
-        isOpen={showPricing}
-        onClose={() => {
-          setShowPricing(false);
-          setPendingDownload(null);
-        }}
-        onSubscribe={handleSubscribe}
-      />
     </>
   );
 };

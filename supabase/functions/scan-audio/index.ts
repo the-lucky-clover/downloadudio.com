@@ -6,14 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface AudioResult {
-  url: string;
-  filename: string;
-  type?: string;
-  artist?: string;
-  title?: string;
-}
-
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -21,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { url, mode } = await req.json();
+    const { url } = await req.json();
     
     if (!url) {
       return new Response(
@@ -47,14 +39,10 @@ serve(async (req) => {
     }
 
     const html = await response.text();
-    const audioUrls: AudioResult[] = [];
+    const audioUrls: { url: string; filename: string; type?: string }[] = [];
     
     // Parse with DOMParser for better JavaScript content extraction
     const document = new DOMParser().parseFromString(html, 'text/html');
-
-    // Extract metadata for artist and song title
-    const metadata = extractMetadata(document, html, url);
-    console.log("Extracted metadata:", metadata);
 
     // Strategy 1: Extract from <audio> and <video> tags (DOM parsing)
     const audioElements = document?.querySelectorAll('audio, video');
@@ -66,10 +54,8 @@ serve(async (req) => {
             const audioUrl = new URL(src, url).href;
             audioUrls.push({
               url: audioUrl,
-              filename: generateFilename(metadata, audioUrl),
+              filename: audioUrl.split('/').pop()?.split('?')[0] || 'audio',
               type: 'media element',
-              artist: metadata.artist,
-              title: metadata.title,
             });
           } catch (e) {
             console.log("Invalid URL:", src);
@@ -86,10 +72,8 @@ serve(async (req) => {
                 const audioUrl = new URL(src, url).href;
                 audioUrls.push({
                   url: audioUrl,
-                  filename: generateFilename(metadata, audioUrl),
+                  filename: audioUrl.split('/').pop()?.split('?')[0] || 'audio',
                   type: 'source element',
-                  artist: metadata.artist,
-                  title: metadata.title,
                 });
               } catch (e) {
                 console.log("Invalid URL:", src);
@@ -113,7 +97,7 @@ serve(async (req) => {
             if (jsonMatch) {
               const data = JSON.parse(jsonMatch[1]);
               // Search for audio URLs in the JSON structure
-              const foundUrls = findAudioUrlsInObject(data, url, metadata);
+              const foundUrls = findAudioUrlsInObject(data, url);
               audioUrls.push(...foundUrls);
             }
           } catch (e) {
@@ -136,10 +120,8 @@ serve(async (req) => {
             if (!audioUrls.some(a => a.url === cleanUrl)) {
               audioUrls.push({
                 url: cleanUrl,
-                filename: generateFilename(metadata, cleanUrl),
+                filename: cleanUrl.split('/').pop()?.split('?')[0] || 'audio',
                 type: 'extracted from script',
-                artist: metadata.artist,
-                title: metadata.title,
               });
             }
           }
@@ -156,10 +138,8 @@ serve(async (req) => {
         if (!audioUrls.some(a => a.url === audioUrl)) {
           audioUrls.push({
             url: audioUrl,
-            filename: generateFilename(metadata, fileMatch[1]),
+            filename: fileMatch[1].split('/').pop()?.split('?')[0] || 'audio',
             type: fileMatch[2].toUpperCase(),
-            artist: metadata.artist,
-            title: metadata.title,
           });
         }
       } catch (e) {
@@ -174,10 +154,8 @@ serve(async (req) => {
       if (!audioUrls.some(a => a.url === cdnMatch![0])) {
         audioUrls.push({
           url: cdnMatch[0],
-          filename: generateFilename(metadata, cdnMatch[0]),
+          filename: cdnMatch[0].split('/').pop()?.split('?')[0] || 'audio',
           type: 'CDN URL',
-          artist: metadata.artist,
-          title: metadata.title,
         });
       }
     }
@@ -202,15 +180,14 @@ serve(async (req) => {
 
     console.log(`Found ${uniqueUrls.length} valid audio sources`);
     if (uniqueUrls.length > 0) {
-      console.log('Audio URLs found:', uniqueUrls.map(u => ({ url: u.url, filename: u.filename })));
+      console.log('Audio URLs found:', uniqueUrls.map(u => u.url));
     }
 
     return new Response(
       JSON.stringify({ 
         success: true,
         audioUrls: uniqueUrls,
-        count: uniqueUrls.length,
-        metadata: metadata,
+        count: uniqueUrls.length 
       }),
       { 
         status: 200, 
@@ -232,141 +209,9 @@ serve(async (req) => {
   }
 });
 
-// Extract artist name and song title from page metadata
-function extractMetadata(document: any, html: string, pageUrl: string): { artist?: string; title?: string } {
-  const metadata: { artist?: string; title?: string } = {};
-  
-  // 1. Check Open Graph tags
-  const ogTitle = document?.querySelector('meta[property="og:title"]')?.getAttribute?.('content');
-  const ogSiteName = document?.querySelector('meta[property="og:site_name"]')?.getAttribute?.('content');
-  const ogDescription = document?.querySelector('meta[property="og:description"]')?.getAttribute?.('content');
-  
-  // 2. Check Twitter Card tags
-  const twitterTitle = document?.querySelector('meta[name="twitter:title"]')?.getAttribute?.('content');
-  const twitterCreator = document?.querySelector('meta[name="twitter:creator"]')?.getAttribute?.('content');
-  
-  // 3. Check standard meta tags
-  const metaTitle = document?.querySelector('title')?.textContent;
-  const metaDescription = document?.querySelector('meta[name="description"]')?.getAttribute?.('content');
-  
-  // 4. Check for music-specific meta tags
-  const musicMusician = document?.querySelector('meta[property="music:musician"]')?.getAttribute?.('content');
-  const musicSong = document?.querySelector('meta[property="music:song"]')?.getAttribute?.('content');
-  
-  // 5. Look for JSON-LD structured data
-  const jsonLdScripts = document?.querySelectorAll('script[type="application/ld+json"]');
-  if (jsonLdScripts) {
-    for (const script of jsonLdScripts) {
-      try {
-        const jsonLd = JSON.parse((script as any).textContent || '{}');
-        if (jsonLd['@type'] === 'MusicRecording' || jsonLd['@type'] === 'AudioObject') {
-          metadata.title = metadata.title || jsonLd.name;
-          metadata.artist = metadata.artist || jsonLd.byArtist?.name || jsonLd.author?.name;
-        }
-      } catch (e) {
-        // Ignore parse errors
-      }
-    }
-  }
-  
-  // 6. Parse common patterns from title
-  const titleText = ogTitle || twitterTitle || metaTitle || '';
-  
-  // Pattern: "Artist - Song Title" or "Song Title - Artist"
-  const dashPattern = /^(.+?)\s*[-–—]\s*(.+)$/;
-  const dashMatch = titleText.match(dashPattern);
-  if (dashMatch) {
-    // Heuristic: shorter segment is usually the artist
-    const [_, part1, part2] = dashMatch;
-    if (part1.length < part2.length) {
-      metadata.artist = metadata.artist || sanitizeText(part1);
-      metadata.title = metadata.title || sanitizeText(part2);
-    } else {
-      metadata.title = metadata.title || sanitizeText(part1);
-      metadata.artist = metadata.artist || sanitizeText(part2);
-    }
-  }
-  
-  // Pattern: "Song Title by Artist"
-  const byPattern = /^(.+?)\s+by\s+(.+)$/i;
-  const byMatch = titleText.match(byPattern);
-  if (byMatch) {
-    metadata.title = metadata.title || sanitizeText(byMatch[1]);
-    metadata.artist = metadata.artist || sanitizeText(byMatch[2]);
-  }
-  
-  // 7. Check for artist/title in URL path (e.g., udio.com/songs/artist-title)
-  try {
-    const urlObj = new URL(pageUrl);
-    const pathSegments = urlObj.pathname.split('/').filter(Boolean);
-    
-    // Look for patterns like /songs/slug or /track/slug
-    if (pathSegments.length >= 2 && ['songs', 'song', 'track', 'music'].includes(pathSegments[0])) {
-      const slug = pathSegments[1];
-      // Decode and split by common separators
-      const decodedSlug = decodeURIComponent(slug);
-      const slugPattern = /^(.+?)[-_](.+)$/;
-      const slugMatch = decodedSlug.match(slugPattern);
-      if (slugMatch && !metadata.title) {
-        metadata.title = sanitizeText(slugMatch[2].replace(/[-_]/g, ' '));
-        metadata.artist = sanitizeText(slugMatch[1].replace(/[-_]/g, ' '));
-      }
-    }
-  } catch (e) {
-    // Ignore URL parsing errors
-  }
-  
-  // 8. Fallback: use Twitter creator or site name as artist
-  if (!metadata.artist) {
-    metadata.artist = musicMusician || twitterCreator || ogSiteName;
-  }
-  
-  // 9. Fallback: use description or title as song title
-  if (!metadata.title) {
-    metadata.title = musicSong || ogDescription || metaDescription || titleText;
-  }
-  
-  // Clean up metadata
-  if (metadata.artist) {
-    metadata.artist = sanitizeText(metadata.artist);
-  }
-  if (metadata.title) {
-    metadata.title = sanitizeText(metadata.title);
-  }
-  
-  return metadata;
-}
-
-// Sanitize text for use in filenames
-function sanitizeText(text: string): string {
-  return text
-    .trim()
-    .replace(/[@|]/g, '') // Remove @ and | characters
-    .replace(/\s+/g, ' ') // Normalize whitespace
-    .replace(/[<>:"/\\|?*]/g, '') // Remove invalid filename characters
-    .substring(0, 100); // Limit length
-}
-
-// Generate filename from metadata
-function generateFilename(metadata: { artist?: string; title?: string }, fallbackUrl: string): string {
-  const artist = metadata.artist?.trim();
-  const title = metadata.title?.trim();
-  
-  if (artist && title) {
-    return `${artist} - ${title}.mp3`;
-  } else if (title) {
-    return `${title}.mp3`;
-  } else if (artist) {
-    return `${artist}.mp3`;
-  } else {
-    // Fallback to URL-based filename
-    return fallbackUrl.split('/').pop()?.split('?')[0] || 'audio.mp3';
-  }
-}
-
 // Helper function to recursively search for audio URLs in JSON objects
-function findAudioUrlsInObject(obj: any, baseUrl: string, metadata: { artist?: string; title?: string }): AudioResult[] {
-  const results: AudioResult[] = [];
+function findAudioUrlsInObject(obj: any, baseUrl: string): { url: string; filename: string; type?: string }[] {
+  const results: { url: string; filename: string; type?: string }[] = [];
   
   const audioExtensions = ['mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac', 'wma', 'mp4'];
   
@@ -378,10 +223,8 @@ function findAudioUrlsInObject(obj: any, baseUrl: string, metadata: { artist?: s
       if (item.startsWith('http') && audioExtensions.some(ext => item.toLowerCase().includes(`.${ext}`))) {
         results.push({
           url: item,
-          filename: generateFilename(metadata, item),
+          filename: item.split('/').pop()?.split('?')[0] || 'audio',
           type: 'JSON data',
-          artist: metadata.artist,
-          title: metadata.title,
         });
       }
     } else if (Array.isArray(item)) {
